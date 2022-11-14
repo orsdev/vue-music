@@ -1,5 +1,9 @@
 <template>
-  <div class="fixed z-10 inset-0 overflow-y-auto hidden" id="modal">
+  <div
+    class="fixed z-10 inset-0 overflow-y-auto"
+    :class="modal.hiddenClass"
+    id="modal"
+  >
     <div
       class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0"
     >
@@ -22,7 +26,9 @@
             <p class="text-2xl font-bold">Your Account</p>
             <!-- Modal Close Button -->
             <div class="modal-close cursor-pointer z-50">
-              <i class="fas fa-times"></i>
+              <button @click.prevent="modal.toggleModal">
+                <i class="fas fa-times"></i>
+              </button>
             </div>
           </div>
 
@@ -148,7 +154,14 @@
 </template>
 
 <script lang="ts">
+import { useModalStore } from "@/stores/modal";
+
 export default {
   name: "auth-modal",
+  setup() {
+    const modal = useModalStore();
+
+    return { modal };
+  },
 };
 </script>

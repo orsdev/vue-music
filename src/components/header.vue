@@ -8,7 +8,7 @@
         <!-- Primary Navigation -->
         <ul class="flex flex-row mt-1">
           <!-- Navigation Links -->
-          <li>
+          <li @click.prevent="toggleModal">
             <a class="px-2 text-white" href="#">Login / Register</a>
           </li>
           <li>
@@ -21,7 +21,14 @@
 </template>
 
 <script lang="ts">
+import { useModalStore } from "@/stores/modal";
+
 export default {
   name: "page-header",
+  setup() {
+    const modal = useModalStore();
+
+    return { toggleModal: modal.toggleModal };
+  },
 };
 </script>
