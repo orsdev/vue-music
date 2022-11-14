@@ -34,22 +34,26 @@
 
           <!-- Tabs -->
           <ul class="flex flex-wrap mb-4">
-            <li class="flex-auto text-center">
+            <li class="flex-auto text-center" @click.prevent="tab = 'login'">
               <a
-                class="block rounded py-3 px-4 transition hover:text-white text-white bg-blue-600"
+                class="block rounded py-3 px-4 transition"
+                :class="{ 'bg-blue-600 text-white': tab === 'login' }"
                 href="#"
                 >Login</a
               >
             </li>
-            <li class="flex-auto text-center">
-              <a class="block rounded py-3 px-4 transition" href="#"
+            <li class="flex-auto text-center" @click.prevent="tab = 'register'">
+              <a
+                class="block rounded py-3 px-4 transition"
+                :class="{ 'bg-blue-600 text-white': tab === 'register' }"
+                href="#"
                 >Register</a
               >
             </li>
           </ul>
 
           <!-- Login Form -->
-          <form>
+          <form v-show="tab === 'login'">
             <!-- Email -->
             <div class="mb-3">
               <label class="inline-block mb-2">Email</label>
@@ -76,7 +80,7 @@
             </button>
           </form>
           <!-- Registration Form -->
-          <form>
+          <form v-show="tab === 'register'">
             <!-- Name -->
             <div class="mb-3">
               <label class="inline-block mb-2">Name</label>
@@ -156,12 +160,21 @@
 <script lang="ts">
 import { useModalStore } from "@/stores/modal";
 
+interface IDataProps {
+  tab: "login" | "register";
+}
+
 export default {
   name: "auth-modal",
   setup() {
     const modal = useModalStore();
 
     return { modal };
+  },
+  data(): IDataProps {
+    return {
+      tab: "login",
+    };
   },
 };
 </script>
