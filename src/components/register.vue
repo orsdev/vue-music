@@ -97,8 +97,9 @@
     <button
       type="submit"
       class="block w-full bg-purple-600 text-white py-1.5 px-3 rounded transition hover:bg-purple-700"
+      :disabled="loading"
     >
-      Submit
+      {{ loading ? "Please wait.." : "Submit" }}
     </button>
   </vee-form>
 </template>
@@ -106,6 +107,8 @@
 <script lang="ts">
 import { useModalStore } from "@/stores/modal";
 import * as yup from "yup";
+import { auth, user_collection } from "@/plugins/firebase";
+import { useToast } from "vue-toastification";
 
 const RegisterSchema = yup.object({
   name: yup.string().required("Name is required"),
@@ -126,6 +129,8 @@ export default {
   name: "auth-register",
   setup() {
     const modal = useModalStore();
+    const toast = useToast();
+
     const formValues = {
       name: "",
       email: "",
@@ -136,12 +141,48 @@ export default {
       tos: false,
     };
 
-    return { modal, RegisterSchema, formValues };
+    return { modal, RegisterSchema, formValues, toast };
   },
   props: ["tab"],
+  data: function () {
+    return {
+      loading: false,
+    };
+  },
   methods: {
-    onRegisterSubmit(values: any) {
-      console.log(values);
+    async onRegisterSubmit(values: any, { resetForm }: any) {
+      this.loading = true;
+      try {
+        await auth.createUserWithEmailAndPassword(
+          values.email,
+          values.password
+        );
+      } catch (error: any) {
+        this.toast.error(error?.message || "something went wrong");
+        return;
+      }
+
+      const data = {
+        ...values,
+      };
+
+      if ("password" in data && "cPassword" in data && "tos" in data) {
+        delete data.password;
+        delete data.cPassword;
+        delete data.tos;
+      }
+
+      try {
+        await user_collection.add({
+          ...data,
+        });
+
+        this.loading = false;
+        resetForm();
+        this.toast.success("Account created successfully");
+      } catch (error: any) {
+        this.toast.error(error?.message || "something went wrong");
+      }
     },
   },
 };
