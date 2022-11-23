@@ -49,6 +49,10 @@ export default {
     async onLogOut() {
       await auth.signOut();
       this.user.logOut();
+
+      if (this.$route.meta?.protected) {
+        this.$router.push({ name: "home" });
+      }
     },
   },
 };

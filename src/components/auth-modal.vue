@@ -89,10 +89,5 @@ export default {
       tab: "login",
     };
   },
-  methods: {
-    onLoginSubmit(values: any) {
-      console.log(values);
-    },
-  },
 };
 </script>
