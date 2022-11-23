@@ -30,14 +30,18 @@
     <button
       type="submit"
       class="block w-full bg-purple-600 text-white py-1.5 px-3 rounded transition hover:bg-purple-700"
+      :disabled="loading"
     >
-      Submit
+      {{ loading ? "Please wait.." : "Submit" }}
     </button>
   </vee-form>
 </template>
 
 <script lang="ts">
 import { useModalStore } from "@/stores/modal";
+import { useUserStore } from "@/stores/user";
+import { auth } from "@/plugins/firebase";
+import { useToast } from "vue-toastification";
 
 import * as yup from "yup";
 
@@ -50,13 +54,29 @@ export default {
   name: "auth-login",
   setup() {
     const modal = useModalStore();
+    const user = useUserStore();
+    const toast = useToast();
 
-    return { modal, LoginSchema };
+    return { modal, LoginSchema, toast, user };
   },
   props: ["tab"],
+  data: function () {
+    return {
+      loading: false,
+    };
+  },
   methods: {
-    onLoginSubmit(values: any) {
-      console.log(values);
+    async onLoginSubmit(values: any) {
+      this.loading = true;
+      try {
+        await auth.signInWithEmailAndPassword(values.email, values.password);
+        this.loading = false;
+        this.user.setIsAuthenticated();
+        this.modal.toggleModal();
+      } catch (error: any) {
+        this.toast.error(error?.message || "something went wrong");
+        return;
+      }
     },
   },
 };

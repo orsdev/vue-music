@@ -106,6 +106,7 @@
 
 <script lang="ts">
 import { useModalStore } from "@/stores/modal";
+import { useUserStore } from "@/stores/user";
 import * as yup from "yup";
 import { auth, user_collection } from "@/plugins/firebase";
 import { useToast } from "vue-toastification";
@@ -129,6 +130,7 @@ export default {
   name: "auth-register",
   setup() {
     const modal = useModalStore();
+    const user = useUserStore();
     const toast = useToast();
 
     const formValues = {
@@ -141,7 +143,7 @@ export default {
       tos: false,
     };
 
-    return { modal, RegisterSchema, formValues, toast };
+    return { modal, RegisterSchema, formValues, toast, user };
   },
   props: ["tab"],
   data: function () {
@@ -152,15 +154,6 @@ export default {
   methods: {
     async onRegisterSubmit(values: any, { resetForm }: any) {
       this.loading = true;
-      try {
-        await auth.createUserWithEmailAndPassword(
-          values.email,
-          values.password
-        );
-      } catch (error: any) {
-        this.toast.error(error?.message || "something went wrong");
-        return;
-      }
 
       const data = {
         ...values,
@@ -173,15 +166,36 @@ export default {
       }
 
       try {
-        await user_collection.add({
-          ...data,
-        });
+        const createUser = await auth.createUserWithEmailAndPassword(
+          values.email,
+          values.password
+        );
 
-        this.loading = false;
-        resetForm();
-        this.toast.success("Account created successfully");
+        let uid = "";
+
+        if (createUser.user) {
+          uid = createUser.user.uid;
+        }
+
+        try {
+          await user_collection.doc(uid).set({
+            ...data,
+          });
+
+          this.loading = false;
+          resetForm();
+
+          await createUser.user?.updateProfile({
+            displayName: data.name,
+          });
+
+          this.toast.success("Account created successfully");
+        } catch (error: any) {
+          throw new Error(error?.message);
+        }
       } catch (error: any) {
         this.toast.error(error?.message || "something went wrong");
+        return;
       }
     },
   },
