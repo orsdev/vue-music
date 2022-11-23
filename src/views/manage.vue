@@ -1,5 +1,5 @@
 <template>
-  <h1 class="p-5 text-xl">Manage Page</h1>
+  <h1 class="p-14 text-2xl w-full text-center">Manage Page</h1>
 </template>
 
 <script lang="ts">
