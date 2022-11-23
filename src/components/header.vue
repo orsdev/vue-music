@@ -2,8 +2,8 @@
   <header id="header" class="bg-gray-700">
     <nav class="container mx-auto flex justify-start items-center py-5 px-4">
       <!-- App Name -->
-      <router-link to="/">
-        <a class="text-white font-bold uppercase text-2xl mr-4">Music</a>
+      <router-link to="/" class="text-white font-bold uppercase text-2xl mr-4">
+        Music
       </router-link>
 
       <div class="flex flex-grow items-center">
@@ -16,8 +16,12 @@
           <li @click.prevent="onLogOut" v-else-if="user.isAuthenticated">
             <a class="px-2 text-white" href="#">Logout</a>
           </li>
-          <router-link to="/manage">
-            <span class="px-2 text-white">Manage</span>
+          <router-link
+            :to="{ name: 'manage' }"
+            class="px-2 text-white"
+            active-class="text-yellow-400"
+          >
+            Manage
           </router-link>
         </ul>
       </div>
