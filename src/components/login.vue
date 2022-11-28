@@ -74,6 +74,7 @@ export default {
         this.user.setIsAuthenticated();
         this.modal.toggleModal();
       } catch (error: any) {
+        this.loading = false;
         this.toast.error(error?.message || "something went wrong");
         return;
       }
