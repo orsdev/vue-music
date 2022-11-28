@@ -41,21 +41,67 @@ export default defineComponent({
   data() {
     return {
       songs: [] as any[],
+      maxPerPage: 25,
+      pendingRequest: false,
     };
   },
   async created() {
-    try {
-      const snapshots = await songs_collection.get();
-      snapshots.forEach((song: any) => {
-        this.songs.push({
-          ...song.data(),
-          docID: song.id,
+    this.getSongs();
+
+    window.addEventListener("scroll", this.handleScroll);
+  },
+  beforeUnmount() {
+    window.removeEventListener("scroll", this.handleScroll);
+  },
+  methods: {
+    handleScroll() {
+      const { scrollTop, offsetHeight } = document.documentElement;
+      const { innerHeight } = window;
+
+      const bottomOfWindow =
+        Math.round(scrollTop) + innerHeight === offsetHeight;
+
+      if (bottomOfWindow) {
+        this.getSongs();
+      }
+    },
+    async getSongs() {
+      if (this.pendingRequest) return;
+
+      this.pendingRequest = true;
+
+      try {
+        let snapshots;
+
+        if (this.songs.length) {
+          const lastDoc = await songs_collection
+            .doc(this.songs[this.songs.length - 1].docID)
+            .get();
+          snapshots = await songs_collection
+            .orderBy("modified_name")
+            .startAfter(lastDoc)
+            .limit(this.maxPerPage)
+            .get();
+        } else {
+          snapshots = await songs_collection
+            .orderBy("modified_name")
+            .limit(this.maxPerPage)
+            .get();
+        }
+
+        snapshots.forEach((song: any) => {
+          this.songs.push({
+            ...song.data(),
+            docID: song.id,
+          });
         });
-      });
-    } catch (error: any) {
-      this.toast.error(error?.message || "something went wrong");
-      return;
-    }
+
+        this.pendingRequest = false;
+      } catch (error: any) {
+        this.toast.error(error?.message || "something went wrong");
+        return;
+      }
+    },
   },
 });
 </script>
