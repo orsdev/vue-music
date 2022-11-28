@@ -21,6 +21,7 @@
         </div>
       </div>
     </section>
+
     <!-- Form -->
     <section class="container mx-auto mt-6">
       <div
@@ -32,18 +33,27 @@
           <i class="fa fa-comments float-right text-green-400 text-2xl"></i>
         </div>
         <div class="p-6">
-          <form>
-            <textarea
-              class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded mb-4"
+          <vee-form
+            @submit="handleSubmit"
+            :validation-schema="validation_schema"
+          >
+            <vee-field
+              as="textarea"
+              name="comment"
+              class="block w-full py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded mb-1"
               placeholder="Your comment here..."
-            ></textarea>
+            ></vee-field>
+            <div class="my-1">
+              <VeeErrorMessage name="comment" className="text-red-500" />
+            </div>
             <button
               type="submit"
               class="py-1.5 px-3 rounded text-white bg-green-600 block"
+              :disabled="loading"
             >
-              Submit
+              {{ loading ? "Please wait.." : "Submit" }}
             </button>
-          </form>
+          </vee-form>
           <!-- Sort Comments -->
           <select
             class="block mt-4 py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
@@ -54,6 +64,7 @@
         </div>
       </div>
     </section>
+
     <!-- Comments -->
     <ul class="container mx-auto">
       <li class="p-6 bg-gray-50 border border-gray-200">
@@ -76,20 +87,31 @@
 </template>
 
 <script lang="ts">
-import { songs_collection } from "@/plugins/firebase";
+import {
+  songs_collection,
+  comments_collection,
+  auth,
+} from "@/plugins/firebase";
 import { defineComponent } from "vue";
 import { useToast } from "vue-toastification";
+
+import * as yup from "yup";
+
+const validation_schema = yup.object({
+  comment: yup.string().required(),
+});
 
 export default defineComponent({
   name: "song-view",
   setup() {
     const toast = useToast();
 
-    return { toast };
+    return { toast, validation_schema };
   },
   data() {
     return {
       song: {} as any,
+      loading: false,
     };
   },
   mounted() {
@@ -111,6 +133,31 @@ export default defineComponent({
       this.toast.error(error?.message || "something went wrong");
       return;
     }
+  },
+  methods: {
+    async handleSubmit(values: any, { resetForm }: any) {
+      this.loading = true;
+      try {
+        const comment = {
+          content: values.comment,
+          datePosted: new Date().toString(),
+          sid: this.$route.params.id,
+          name: auth.currentUser?.displayName,
+          uid: auth.currentUser?.uid,
+        };
+
+        await comments_collection.add(comment);
+        this.loading = false;
+
+        this.toast.success("Comment added.");
+
+        resetForm();
+      } catch (error: any) {
+        this.loading = false;
+        this.toast.error(error?.message || "something went wrong");
+        return;
+      }
+    },
   },
 });
 </script>
