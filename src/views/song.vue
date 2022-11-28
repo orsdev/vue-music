@@ -29,7 +29,7 @@
       >
         <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200">
           <!-- Comment Count -->
-          <span class="card-title">Comments (15)</span>
+          <span class="card-title">Comments ({{ comments.length }})</span>
           <i class="fa fa-comments float-right text-green-400 text-2xl"></i>
         </div>
         <div class="p-6">
@@ -57,6 +57,7 @@
           <!-- Sort Comments -->
           <select
             class="block mt-4 py-1.5 px-3 text-gray-800 border border-gray-300 transition duration-500 focus:outline-none focus:border-black rounded"
+            v-model="sort"
           >
             <option value="1">Latest</option>
             <option value="2">Oldest</option>
@@ -66,17 +67,20 @@
     </section>
 
     <!-- Comments -->
-    <ul class="container mx-auto">
+    <ul
+      class="container mx-auto"
+      v-for="comment in sortedComments"
+      :key="comment"
+    >
       <li class="p-6 bg-gray-50 border border-gray-200">
         <!-- Comment Author -->
         <div class="mb-5">
-          <div class="font-bold">Elaine Dreyfuss</div>
-          <time>5 mins ago</time>
+          <div class="font-bold">{{ comment.name }}</div>
+          <time>{{ comment.datePosted }}</time>
         </div>
 
         <p>
-          Sed ut perspiciatis unde omnis iste natus error sit voluptatem
-          accusantium der doloremque laudantium.
+          {{ comment.content }}
         </p>
       </li>
     </ul>
@@ -112,6 +116,8 @@ export default defineComponent({
     return {
       song: {} as any,
       loading: false,
+      comments: [] as any[],
+      sort: "1",
     };
   },
   mounted() {
@@ -129,10 +135,26 @@ export default defineComponent({
       }
 
       this.song = song.data();
+
+      this.getComments();
     } catch (error: any) {
       this.toast.error(error?.message || "something went wrong");
       return;
     }
+  },
+  computed: {
+    sortedComments() {
+      const comments = [...this.comments];
+      return comments.sort((a: any, b: any) => {
+        const aDate = new Date(a.datePosted);
+        const bDate = new Date(b.datePosted);
+        if (this.sort === "1") {
+          return (bDate as any) - (aDate as any);
+        } else {
+          return (aDate as any) - (bDate as any);
+        }
+      });
+    },
   },
   methods: {
     async handleSubmit(values: any, { resetForm }: any) {
@@ -152,6 +174,25 @@ export default defineComponent({
         this.toast.success("Comment added.");
 
         resetForm();
+        this.getComments();
+      } catch (error: any) {
+        this.loading = false;
+        this.toast.error(error?.message || "something went wrong");
+        return;
+      }
+    },
+    async getComments() {
+      try {
+        const comments = await comments_collection
+          .where("sid", "==", this.$route.params.id)
+          .get();
+        this.comments = [];
+        comments.forEach((doc) => {
+          this.comments.push({
+            docID: doc.id,
+            ...doc.data(),
+          });
+        });
       } catch (error: any) {
         this.loading = false;
         this.toast.error(error?.message || "something went wrong");
