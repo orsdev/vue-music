@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "@/views/home.vue";
 import ManageView from "@/views/manage.vue";
+import SongView from "@/views/song.vue";
 import NotFoundView from "@/views/404.vue";
 import { auth } from "@/plugins/firebase";
 
@@ -24,6 +25,14 @@ const router = createRouter({
       //   if (!canAccess) return "/not-found";
       // },
       // redirect: "/not-found", Redirect to 404 page
+      meta: {
+        protected: true,
+      },
+    },
+    {
+      path: "/song/:id",
+      name: "song",
+      component: SongView,
       meta: {
         protected: true,
       },
