@@ -15,14 +15,12 @@
       </ol>
     </div>
   </section>
-  <Player />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
 
 import Introduction from "@/components/home/introduction.vue";
-import Player from "@/components/home/player.vue";
 import HomeContent from "@/components/home/content.vue";
 import { songs_collection } from "@/plugins/firebase";
 import { useToast } from "vue-toastification";
@@ -35,7 +33,6 @@ export default defineComponent({
   },
   components: {
     Introduction,
-    Player,
     HomeContent,
   },
   data() {

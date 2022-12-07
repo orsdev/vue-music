@@ -11,8 +11,15 @@
         <button
           type="button"
           class="z-50 h-24 w-24 text-3xl bg-white text-black rounded-full focus:outline-none"
+          @click.prevent="player.newSong(song)"
         >
-          <i class="fas fa-play"></i>
+          <i
+            class="fa text-gray-500 text-xl"
+            :class="{
+              'fa-play': !player.isPlaying,
+              'fa-pause': player.isPlaying,
+            }"
+          ></i>
         </button>
         <div class="z-50 text-left ml-8 max-w-[400px]">
           <!-- Song Info -->
@@ -23,7 +30,7 @@
     </section>
 
     <!-- Form -->
-    <section class="container mx-auto mt-6">
+    <section class="container mx-auto mt-6" id="comments">
       <div
         class="bg-white rounded border border-gray-200 relative flex flex-col"
       >
@@ -98,6 +105,7 @@ import {
 } from "@/plugins/firebase";
 import { defineComponent } from "vue";
 import { useToast } from "vue-toastification";
+import { usePlayerStore } from "@/stores/player";
 
 import * as yup from "yup";
 
@@ -109,8 +117,9 @@ export default defineComponent({
   name: "song-view",
   setup() {
     const toast = useToast();
+    const player = usePlayerStore();
 
-    return { toast, validation_schema };
+    return { toast, validation_schema, player };
   },
   data() {
     return {

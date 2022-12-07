@@ -2,41 +2,61 @@
   <div class="fixed bottom-0 left-0 bg-white px-4 py-2 w-full">
     <!-- Track Info -->
     <div class="text-center">
-      <span class="song-title font-bold">Song Title</span> by
-      <span class="song-artist">Artist</span>
+      <span class="song-title font-bold">{{
+        player.current_song.modified_name
+      }}</span>
+      by
+      <span class="song-artist">{{ player.current_song.display_name }}</span>
     </div>
     <div class="flex flex-nowrap gap-4 items-center">
       <!-- Play/Pause Button -->
-      <button type="button">
-        <i class="fa fa-play text-gray-500 text-xl"></i>
+      <button type="button" @click.prevent="player.toggleAudio">
+        <i
+          class="fa text-gray-500 text-xl"
+          :class="{
+            'fa-play': !player.isPlaying,
+            'fa-pause': player.isPlaying,
+          }"
+        ></i>
       </button>
       <!-- Current Position -->
-      <div class="player-currenttime">00:00</div>
+      <div class="player-currenttime">{{ player.seek }}</div>
       <!-- Scrub Container  -->
-      <div class="w-full h-2 rounded bg-gray-200 relative cursor-pointer">
+      <div
+        class="w-full h-2 rounded bg-gray-200 relative cursor-pointer"
+        @click.prevent="player.updateSeek"
+      >
         <!-- Player Ball -->
         <span
           class="absolute -top-2.5 -ml-2.5 text-gray-800 text-lg"
-          style="left: 50%"
+          :style="{ left: player.player_progress }"
         >
           <i class="fas fa-circle"></i>
         </span>
         <!-- Player Progress Bar-->
         <span
           class="block h-2 rounded bg-gradient-to-r from-green-500 to-green-400"
-          style="width: 50%"
+          :style="{ width: player.player_progress }"
         ></span>
       </div>
       <!-- Duration -->
-      <div class="player-duration">03:06</div>
+      <div class="player-duration">{{ player.duration }}</div>
     </div>
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
+import { usePlayerStore } from "@/stores/player";
 
 export default defineComponent({
   name: "home-player",
+  setup() {
+    const player = usePlayerStore();
+
+    return {
+      player,
+    };
+  },
 });
 </script>
