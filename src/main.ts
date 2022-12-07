@@ -6,6 +6,7 @@ import Toast from "vue-toastification";
 import App from "./App.vue";
 import router from "./router";
 import { auth } from "./plugins/firebase";
+import Icon from "./directives/icon";
 
 import "./assets/main.css";
 import "vue-toastification/dist/index.css";
@@ -24,6 +25,7 @@ auth.onAuthStateChanged(() => {
     app.use(Toast, options);
     app.use(router);
     app.use(VeeValidatePlugins);
+    app.directive("icon", Icon);
     app.mount("#app");
   }
 });
