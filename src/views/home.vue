@@ -4,7 +4,10 @@
     <div class="bg-white rounded border border-gray-200 relative flex flex-col">
       <!-- Playlist -->
       <ol id="playlist">
-        <div class="px-6 pt-6 pb-5 font-bold border-b border-gray-200" v-icon>
+        <div
+          class="px-6 pt-6 pb-5 font-bold border-b border-gray-200"
+          v-icon="'fa-headphones-alt'"
+        >
           <span class="card-title">Songs</span>
         </div>
         <HomeContent v-for="song in songs" :key="song.docID" :song="song" />

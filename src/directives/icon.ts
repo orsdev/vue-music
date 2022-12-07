@@ -1,6 +1,6 @@
 export default {
-  beforeMount(el: HTMLElement) {
+  beforeMount(el: HTMLElement, binding: any) {
     el.innerHTML +=
-      '<i class="fa fa-headphones-alt float-right text-green-400 text-xl"/>';
+      `<i class="fa ${binding.value} float-right text-green-400 text-xl"/>`;
   },
 };
